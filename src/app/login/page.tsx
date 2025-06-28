@@ -15,13 +15,9 @@ export default function LoginPage() {
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-        if (user?.role === 'student') {
-            router.push('/student/dashboard');
-        } else {
-            router.push('/dashboard');
-        }
+      router.push('/dashboard');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, user?.role, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

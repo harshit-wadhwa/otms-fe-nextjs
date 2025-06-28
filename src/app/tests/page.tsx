@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import { apiClient } from '@/utils/apiClient';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -28,7 +27,6 @@ interface Question {
 
 export default function TestsPage() {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -89,11 +87,6 @@ export default function TestsPage() {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  // Calculate total score for a test
-  const calculateTotalScore = (questions: Question[]) => {
-    return questions?.reduce((total, question) => total + question.score, 0);
   };
 
   useEffect(() => {

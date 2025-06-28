@@ -38,7 +38,7 @@ export const tokenCookies = {
   },
 
   // Set user data
-  setUser: (user: any) => {
+  setUser: (user: unknown) => {
     Cookies.set(COOKIE_KEYS.USER, JSON.stringify(user), COOKIE_CONFIG);
   },
 

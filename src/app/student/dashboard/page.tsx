@@ -29,7 +29,7 @@ export default function StudentDashboard() {
         // Adjust endpoint if needed
         const response = await apiClient.get<{ tests: Test[] }>('/student/tests');
         setTests(response.tests ?? []);
-      } catch (err) {
+      } catch {
         setError('Failed to load tests.');
       } finally {
         setLoading(false);

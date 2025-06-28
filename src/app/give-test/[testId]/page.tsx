@@ -35,7 +35,6 @@ export default function GiveTestPage() {
   const [submitted, setSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [autoSubmitted, setAutoSubmitted] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -51,6 +50,7 @@ export default function GiveTestPage() {
         setAnswers(Array(response.test.questions.length).fill(null));
         setTimeLeft(response.test.time); // Set timer in seconds
       } catch (err) {
+        console.log(err);
         setError('Failed to load test.');
       } finally {
         setLoading(false);
@@ -67,7 +67,7 @@ export default function GiveTestPage() {
   useEffect(() => {
     if (timeLeft === null || submitted) return;
     if (timeLeft <= 0) {
-      handleSubmit(true);
+      (async () => { await handleSubmit(true); })();
       return;
     }
     timerRef.current = setInterval(() => {
@@ -85,15 +85,6 @@ export default function GiveTestPage() {
     const s = (seconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
-
-  // Handle answer selection
-  const handleSelect = (option: string) => {
-    setAnswers(prev => prev.map((ans, idx) => idx === current ? option : ans));
-  };
-
-  // Pagination
-  const goNext = () => setCurrent((c) => Math.min(c + 1, (test?.questions.length ?? 1) - 1));
-  const goPrev = () => setCurrent((c) => Math.max(c - 1, 0));
 
   // Submit test (with API integration)
   const handleSubmit = async (auto = false) => {
@@ -116,13 +107,23 @@ export default function GiveTestPage() {
       };
       await apiClient.post(`/student/tests/${testId}`, payload);
       setSubmitted(true);
-      if (auto) setAutoSubmitted(true);
-      router.replace(`/give-test/${testId}/submitted`);
-    } catch (err: any) {
-      setSubmitError(err?.message || 'Failed to submit test. Please try again.');
+      if (auto) {
+        router.replace(`/give-test/${testId}/submitted`);
+      }
+    } catch (err: unknown) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to submit test. Please try again.');
       setSubmitting(false);
     }
   };
+
+  // Handle answer selection
+  const handleSelect = (option: string) => {
+    setAnswers(prev => prev.map((ans, idx) => idx === current ? option : ans));
+  };
+
+  // Pagination
+  const goNext = () => setCurrent((c) => Math.min(c + 1, (test?.questions.length ?? 1) - 1));
+  const goPrev = () => setCurrent((c) => Math.max(c - 1, 0));
 
   if (loading) {
     return (
@@ -272,7 +273,7 @@ export default function GiveTestPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center animate-fade-in">
               <div className="text-2xl font-bold text-gray-900 mb-4">Submit Test?</div>
-              <div className="text-gray-700 mb-6">Are you sure you want to submit your test? You won't be able to change your answers after this.</div>
+              <div className="text-gray-700 mb-6">Are you sure you want to submit your test? You won&apos;t be able to change your answers after this.</div>
               <div className="flex justify-center gap-4">
                 <button
                   className="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors cursor-pointer"

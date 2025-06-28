@@ -84,7 +84,7 @@ class ApiClient {
       }
 
       return await response.text() as T;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('API request failed:', error);
       throw error;
     }
@@ -96,7 +96,7 @@ class ApiClient {
   }
 
   // POST request
-  async post<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
@@ -104,7 +104,7 @@ class ApiClient {
   }
 
   // PUT request
-  async put<T>(endpoint: string, data?: any): Promise<T> {
+  async put<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
@@ -117,7 +117,7 @@ class ApiClient {
   }
 
   // PATCH request
-  async patch<T>(endpoint: string, data?: any): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,

@@ -35,7 +35,8 @@ export default function AssignTestPage() {
         const studentsRes = await apiClient.get<{ students: Student[] }>('/teacher/students');
         setTests(testsRes.tests ?? []);
         setStudents(studentsRes.students ?? []);
-      } catch (err) {
+      } catch (error) {
+        console.log(error);
         setError('Failed to load tests or students.');
       } finally {
         setLoading(false);
@@ -60,8 +61,8 @@ export default function AssignTestPage() {
       };
       await apiClient.post(`/teacher/tests/${selectedTest}/assign`, payload);
       setSuccess('Test assigned to all students successfully!');
-    } catch (err: any) {
-      setError(err?.message || 'Failed to assign test.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to assign test.');
     } finally {
       setAssigning(false);
     }

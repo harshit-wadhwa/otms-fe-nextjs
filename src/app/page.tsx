@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 
 export default function Home() {
-  const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   console.log('thiss', user, isAuthenticated, isLoading);
@@ -21,15 +21,6 @@ export default function Home() {
       }
     }
   }, [isAuthenticated, isLoading, user, router]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
   // Show loading while checking authentication
   if (isLoading) {

@@ -33,8 +33,8 @@ export default function AddStudentPage() {
       await apiClient.post('/teacher/student', form);
       setSuccess('Student added successfully!');
       setForm({ first_name: '', last_name: '', email: '', phone: '' });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to add student.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to add student.');
     } finally {
       setLoading(false);
     }

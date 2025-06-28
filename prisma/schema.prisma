@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  role       String   @default("student") // student, teacher, admin
+  name       String?
+  first_name String?
+  last_name  String?
+  phone      String?
+  username   String?  @unique
+  created_by Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  studentTests StudentTest[]
+  teacherTests Test[] @relation("TestTeacher")
+  createdUsers User[] @relation("UserCreatedBy")
+  createdBy    User?  @relation("UserCreatedBy", fields: [created_by], references: [id])
+  createdTests Test[] @relation("TestCreatedBy")
+
+  @@map("users")
+}
+
+model Test {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  time        Int      // Duration in minutes
+  score       Int      // Total possible score
+  is_active   Boolean  @default(true)
+  teacher_id  Int
+  created_by  Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  teacher      User          @relation("TestTeacher", fields: [teacher_id], references: [id])
+  questions    TestQuestion[]
+  studentTests StudentTest[]
+  createdBy    User?         @relation("TestCreatedBy", fields: [created_by], references: [id])
+
+  @@map("tests")
+}
+
+model TestQuestion {
+  id       Int      @id @default(autoincrement())
+  test_id  Int
+  question String
+  options  String[] // Array of options
+  answer   String   // Correct answer
+  score    Int      // Points for this question
+  created_at DateTime @default(now())
+
+  // Relations
+  test Test @relation(fields: [test_id], references: [id], onDelete: Cascade)
+
+  @@map("test_questions")
+}
+
+model StudentTest {
+  id        Int      @id @default(autoincrement())
+  test_id   Int
+  user_id   Int
+  score     Int      @default(0)
+  status    String   @default("pending") // pending, submitted, graded
+  answers   Json?    // Array of {question_id: number, answer: string}
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  test Test @relation(fields: [test_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([test_id, user_id])
+  @@map("student_tests")
+}

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { apiClient } from '@/utils/apiClient';
+import Link from 'next/link';
 
 // TypeScript interfaces
 interface Question {
@@ -263,7 +264,7 @@ const AddTestPage = () => {
 
           {testData.questions.length === 0 && (
             <p className="text-gray-500 text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              No questions added yet. Click "Add Question" to get started.
+              No questions added yet. Click &quot;Add Question&quot; to get started.
             </p>
           )}
 
@@ -377,6 +378,13 @@ const AddTestPage = () => {
           </button>
         </div>
       </form>
+
+      <p className="text-center mt-4 text-sm text-gray-500">
+        Sign in to your account at{' '}
+        <Link href="/login" className="text-blue-600 hover:underline">
+          /login
+        </Link>
+      </p>
     </div>
   );
 };
