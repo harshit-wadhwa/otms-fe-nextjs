@@ -9,5 +9,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ detail: 'Invalid username or password' }, { status: 401 });
   }
   const token = signJwt({ user_id: user.id, role: user.role });
-  return NextResponse.json({ message: 'Login successful', token, user });
+  return NextResponse.json({ 
+    message: 'Login successful', 
+    token, 
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: user.role,
+      phone: user.phone
+    }
+  });
 } 

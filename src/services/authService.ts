@@ -17,7 +17,14 @@ class AuthService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          const responseText = await response.text();
+          errorData = responseText ? JSON.parse(responseText) : { detail: 'Login failed' };
+        } catch (parseError) {
+            console.log('parseError', parseError);
+          errorData = { detail: 'Login failed' };
+        }
         throw new Error(errorData.detail || 'Login failed');
       }
 

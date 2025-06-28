@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
+  BASE_URL: '/api', // process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
   ENDPOINTS: {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
@@ -29,6 +29,10 @@ export interface LoginResponse {
     id: number;
     username: string;
     email?: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    role: string;
   };
 }
 

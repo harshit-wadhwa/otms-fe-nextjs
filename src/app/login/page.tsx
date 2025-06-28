@@ -10,14 +10,19 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, isLoading: authIsLoading } = useAuth();
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push('/dashboard');
+    console.log('here', authIsLoading, isAuthenticated, user);
+    if (!authIsLoading && isAuthenticated) {
+        if (user?.role === 'student') {
+            router.push('/student/dashboard');
+        } else {
+            router.push('/dashboard');
+        }
     }
-  }, [isAuthenticated, isLoading, user?.role, router]);
+  }, [isAuthenticated, authIsLoading, user?.role, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +31,6 @@ export default function LoginPage() {
     
     try {
       await login(username, password);
-      
-      // Redirect to dashboard or home page after successful login
-      router.push('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
       setError(error instanceof Error ? error.message : 'Login failed. Please try again.');

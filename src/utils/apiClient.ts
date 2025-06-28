@@ -71,9 +71,14 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        const errorData: ApiError = await response.json().catch(() => ({
-          detail: `HTTP ${response.status}: ${response.statusText}`,
-        }));
+        let errorData: ApiError;
+        try {
+          const responseText = await response.text();
+          errorData = responseText ? JSON.parse(responseText) : { detail: `HTTP ${response.status}: ${response.statusText}` };
+        } catch (parseError) {
+          console.log('parseError', parseError);
+          errorData = { detail: `HTTP ${response.status}: ${response.statusText}` };
+        }
         throw new Error(errorData.detail || 'Request failed');
       }
 

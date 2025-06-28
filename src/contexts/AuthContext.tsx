@@ -6,9 +6,12 @@ import { tokenCookies } from '@/utils/cookies';
 
 interface User {
   id: number;
-  username: string;
+  username?: string;
   email?: string;
-  role?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  role: string;
 }
 
 interface AuthContextType {
@@ -27,11 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if user is already authenticated on app load
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
-        const storedUser = tokenCookies.getUser();
-        if (storedUser && tokenCookies.isAuthenticated()) {
-          setUser(storedUser);
+        if (tokenCookies.isAuthenticated()) {
+          // Fetch current user profile from server to ensure we have complete user data
+          const profile = await authService.getProfile() as User;
+          setUser(profile);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -48,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authService.login({ username, password });
       if (response.user) {
-        setUser(response.user);
+        setUser(response.user as User);
       }
     } catch (error) {
       throw error;

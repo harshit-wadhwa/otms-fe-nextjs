@@ -13,6 +13,7 @@ export default function Home() {
 
   // Redirect authenticated users to dashboard or student dashboard
   useEffect(() => {
+    console.log(isLoading, isAuthenticated, user);
     if (!isLoading && isAuthenticated) {
       if (user?.role === 'student') {
         router.push('/student/dashboard');

@@ -15,18 +15,14 @@ model User {
   email      String   @unique
   password   String
   role       String   @default("student") // student, teacher, admin
-  name       String?
   first_name String?
   last_name  String?
   phone      String?
   username   String?  @unique
   created_by Int?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 
   // Relations
   studentTests StudentTest[]
-  teacherTests Test[] @relation("TestTeacher")
   createdUsers User[] @relation("UserCreatedBy")
   createdBy    User?  @relation("UserCreatedBy", fields: [created_by], references: [id])
   createdTests Test[] @relation("TestCreatedBy")
@@ -41,13 +37,10 @@ model Test {
   time        Int      // Duration in minutes
   score       Int      // Total possible score
   is_active   Boolean  @default(true)
-  teacher_id  Int
   created_by  Int?
   created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
 
   // Relations
-  teacher      User          @relation("TestTeacher", fields: [teacher_id], references: [id])
   questions    TestQuestion[]
   studentTests StudentTest[]
   createdBy    User?         @relation("TestCreatedBy", fields: [created_by], references: [id])
@@ -62,7 +55,6 @@ model TestQuestion {
   options  String[] // Array of options
   answer   String   // Correct answer
   score    Int      // Points for this question
-  created_at DateTime @default(now())
 
   // Relations
   test Test @relation(fields: [test_id], references: [id], onDelete: Cascade)
@@ -78,7 +70,6 @@ model StudentTest {
   status    String   @default("pending") // pending, submitted, graded
   answers   Json?    // Array of {question_id: number, answer: string}
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 
   // Relations
   test Test @relation(fields: [test_id], references: [id], onDelete: Cascade)
