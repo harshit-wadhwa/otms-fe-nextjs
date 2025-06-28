@@ -13,7 +13,6 @@ export async function POST(req: NextRequest) {
       description,
       time,
       score,
-      teacher_id: userJwt.user_id,
       created_by: userJwt.user_id,
       is_active: true,
     },
