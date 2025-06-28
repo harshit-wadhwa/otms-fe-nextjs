@@ -44,11 +44,11 @@ export default function GiveTestPage() {
       setLoading(true);
       setError('');
       try {
-        const response = await apiClient.get<{ test: Test }>(`/teacher/tests/${testId}`);
+        const response = await apiClient.get<Test>(`/teacher/tests/${testId}`);
         console.log('response', response);
-        setTest(response.test);
-        setAnswers(Array(response.test.questions.length).fill(null));
-        setTimeLeft(response.test.time); // Set timer in seconds
+        setTest(response);
+        setAnswers(Array(response.questions.length).fill(null));
+        setTimeLeft(response.time); // Set timer in seconds
       } catch (err) {
         console.log(err);
         setError('Failed to load test.');
@@ -107,9 +107,7 @@ export default function GiveTestPage() {
       };
       await apiClient.post(`/student/tests/${testId}`, payload);
       setSubmitted(true);
-      if (auto) {
-        router.replace(`/give-test/${testId}/submitted`);
-      }
+      router.replace(`/give-test/${testId}/submitted`);
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit test. Please try again.');
       setSubmitting(false);
