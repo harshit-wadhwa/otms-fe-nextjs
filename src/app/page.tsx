@@ -28,7 +28,7 @@ export default function Home() {
             Welcome to OTMS
           </h1>
           <p className="text-lg text-gray-600 mb-8">
-            Order Tracking Management System
+           Online Test Management System
           </p>
         </div>
 
@@ -59,14 +59,14 @@ export default function Home() {
               Enter your credentials to access the system
             </li>
             <li className="tracking-[-.01em]">
-              Access your dashboard to manage orders
+              Access your dashboard to manage tests
             </li>
           </ol>
         </div>
       </main>
       
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center text-sm text-gray-600">
-        <span>OTMS - Order Tracking Management System</span>
+        <span>OTMS - Online Test Management System</span>
         <span>•</span>
         <span>Powered by Next.js & FastAPI</span>
       </footer>
