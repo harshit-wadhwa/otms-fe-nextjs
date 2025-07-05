@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/utils/apiClient';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -63,21 +63,6 @@ export default function GiveTestPage() {
     };
   }, [testId]);
 
-  // Timer countdown effect
-  useEffect(() => {
-    if (timeLeft === null || submitted) return;
-    if (timeLeft <= 0) {
-      (async () => { await handleSubmit(true); })();
-      return;
-    }
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timeLeft, submitted]);
-
   // Format timer as mm:ss
   const formatTime = (seconds: number | null) => {
     if (seconds === null) return '--:--';
@@ -87,7 +72,7 @@ export default function GiveTestPage() {
   };
 
   // Submit test (with API integration)
-  const handleSubmit = async (auto = false) => {
+  const handleSubmit = useCallback(async (auto = false) => {
     if (submitting || submitted) return;
     if (!auto && !showConfirm) {
       setShowConfirm(true);
@@ -112,7 +97,22 @@ export default function GiveTestPage() {
       setSubmitError(err instanceof Error ? err.message : 'Failed to submit test. Please try again.');
       setSubmitting(false);
     }
-  };
+  }, [submitting, submitted, showConfirm, test, answers, testId, router]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (timeLeft === null || submitted) return;
+    if (timeLeft <= 0) {
+      (async () => { await handleSubmit(true); })();
+      return;
+    }
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [timeLeft, submitted, handleSubmit]);
 
   // Handle answer selection
   const handleSelect = (option: string) => {

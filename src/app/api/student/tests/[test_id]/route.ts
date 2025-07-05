@@ -18,11 +18,22 @@ export async function POST(
   // Check if StudentTest already exists
   let studentTest = await prisma.studentTest.findFirst({ where: { test_id: test.id, user_id: userJwt.user_id } });
   if (studentTest) {
+    // Calculate score
+    let score = 0;
+    for (const answer of formattedAnswers) {
+      const question = questions.find((q: { id: number; answer: string; score: number }) => q.id === answer.question_id);
+      if (question && question.answer === answer.answer) score += question.score;
+    }
+    
     studentTest = await prisma.studentTest.update({
       where: { id: studentTest.id },
-      data: { answers: formattedAnswers },
+      data: { 
+        answers: formattedAnswers,
+        score,
+        status: 'submitted'
+      },
     });
-    return NextResponse.json({ message: 'Answers updated successfully', test_id: studentTest.id });
+    return NextResponse.json({ message: 'Test submitted successfully', test_id: studentTest.id });
   } else {
     // Calculate score
     let score = 0;

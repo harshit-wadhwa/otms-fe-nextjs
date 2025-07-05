@@ -1,4 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OTMS (Online Test Management System)
+
+This is a [Next.js](https://nextjs.org) project for managing online tests, built with TypeScript, Prisma, and Tailwind CSS.
+
+## Features
+
+- **User Authentication**: Role-based access (Student, Teacher, Admin)
+- **Test Management**: Create, assign, and manage tests
+- **Student Testing**: Take tests with timer and auto-submission
+- **Score Tracking**: View test scores with analytics and filtering
+- **Real-time Updates**: Live score updates and test status
+
+## Recent Updates
+
+### Role-Based Redirect System
+- **Global Layout Integration**: Automatic role-based routing for all authenticated users
+- **Security**: Prevents unauthorized access to role-specific pages
+- **User Experience**: Seamless redirects to appropriate dashboards
+- **Cross-Dashboard Protection**: Students can't access teacher pages and vice versa
+
+### Student Dashboard Redesign
+- **Simplified Layout**: Only 2 main widgets - "View My Scores" and "Available Tests"
+- **Separate Tests Page**: `/student/tests` - Dedicated page for viewing and taking tests
+- **Smart Filtering**: API automatically filters out tests students have already taken
+- **Enhanced UX**: Clean navigation and improved test-taking experience
+
+### Test Scores Feature
+- **API Endpoint**: `/api/scores` - Fetches all test scores with role-based access
+- **Scores Page**: `/scores` - Modern UI with search, filtering, and analytics
+- **Role-based Views**: Teachers see all student scores, students see only their own
+- **Analytics**: Summary statistics including average, highest, and lowest scores
 
 ## Getting Started
 

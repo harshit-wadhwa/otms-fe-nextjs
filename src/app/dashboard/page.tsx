@@ -84,14 +84,18 @@ export default function DashboardPage() {
                 <h3 className="font-bold text-xl mb-1 text-gray-900">Add Student</h3>
                 <p className="text-gray-600 text-sm mb-1">Register a new student to the system</p>
               </Link>
-              <div className="bg-gray-100 p-6 rounded-lg text-center">
-                <div className="text-3xl mb-2">📈</div>
-                <h3 className="font-semibold text-lg mb-2">Test Results</h3>
-                <p className="text-gray-600 text-sm">View test results and analytics</p>
-                <button className="mt-3 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors text-sm">
-                  Coming Soon
-                </button>
-              </div>
+              <Link
+                href="/scores"
+                className="relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all text-center group overflow-hidden"
+              >
+                <div className="flex justify-center mb-3">
+                  <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/20 text-4xl">
+                    📈
+                  </span>
+                </div>
+                <h3 className="font-bold text-xl mb-1 drop-shadow">Test Scores</h3>
+                <p className="text-emerald-100 text-sm mb-1">View test results and analytics</p>
+              </Link>
               <Link
                 href="/assign-test"
                 className="relative bg-gradient-to-br from-purple-500 to-indigo-500 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl hover:scale-[1.03] transition-all text-center group overflow-hidden"

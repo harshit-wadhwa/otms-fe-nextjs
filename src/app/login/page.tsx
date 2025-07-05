@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
@@ -9,20 +8,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
-  const { login, isAuthenticated, user, isLoading: authIsLoading } = useAuth();
+  const { login, isAuthenticated } = useAuth();
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    console.log('here', authIsLoading, isAuthenticated, user);
-    if (!authIsLoading && isAuthenticated) {
-        if (user?.role === 'student') {
-            router.push('/student/dashboard');
-        } else {
-            router.push('/dashboard');
-        }
-    }
-  }, [isAuthenticated, authIsLoading, user?.role, router]);
+  // Redirect is handled by RoleBasedRedirect component in layout
+
+  // Don't render login form if already authenticated
+  if (isAuthenticated) {
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

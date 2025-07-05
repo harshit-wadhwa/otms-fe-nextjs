@@ -1,27 +1,10 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect } from 'react';
 
 export default function Home() {
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-
-  console.log('thiss', user, isAuthenticated, isLoading);
-
-  // Redirect authenticated users to dashboard or student dashboard
-  useEffect(() => {
-    console.log(isLoading, isAuthenticated, user);
-    if (!isLoading && isAuthenticated) {
-      if (user?.role === 'student') {
-        router.push('/student/dashboard');
-      } else {
-        router.push('/dashboard');
-      }
-    }
-  }, [isAuthenticated, isLoading, user, router]);
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Show loading while checking authentication
   if (isLoading) {
@@ -32,7 +15,7 @@ export default function Home() {
     );
   }
 
-  // Don't render anything if user is authenticated (will redirect)
+  // Don't render anything if user is authenticated (will redirect via RoleBasedRedirect)
   if (isAuthenticated) {
     return null;
   }
