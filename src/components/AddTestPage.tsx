@@ -8,7 +8,8 @@ import Link from 'next/link';
 interface Question {
   question: string;
   options: string[];
-  answer: string;
+  answer: string[];
+  question_type: 'single' | 'multiple';
   score: number;
 }
 
@@ -35,7 +36,8 @@ const AddTestPage = () => {
     const newQuestion: Question = {
       question: '',
       options: ['', ''], // Start with 2 options by default
-      answer: '',
+      answer: [],
+      question_type: 'single',
       score: 0
     };
     setTestData(prev => ({
@@ -88,7 +90,7 @@ const AddTestPage = () => {
   };
 
   // Update question data
-  const handleQuestionChange = (questionIndex: number, field: keyof Question, value: string | number) => {
+  const handleQuestionChange = (questionIndex: number, field: keyof Question, value: string | number | string[]) => {
     setTestData(prev => ({
       ...prev,
       questions: prev.questions.map((q, i) => 
@@ -144,7 +146,7 @@ const AddTestPage = () => {
         setMessage(`All options for question ${i + 1} are required`);
         return;
       }
-      if (!q.answer.trim()) {
+      if (q.answer.length === 0) {
         setMessage(`Answer for question ${i + 1} is required`);
         return;
       }
@@ -166,6 +168,7 @@ const AddTestPage = () => {
           question: q.question,
           options: q.options,
           answer: q.answer,
+          question_type: q.question_type,
           score: q.score
         }))
       };
@@ -336,31 +339,79 @@ const AddTestPage = () => {
                   )}
                 </div>
 
-                {/* Answer and Score */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">Correct Answer *</label>
-                    <input
-                      type="text"
-                      value={question.answer}
-                      onChange={(e) => handleQuestionChange(questionIndex, 'answer', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
-                      placeholder="Enter correct answer"
-                      required
-                    />
+                {/* Question Type */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Question Type *</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name={`question-type-${questionIndex}`}
+                        value="single"
+                        checked={question.question_type === 'single'}
+                        onChange={(e) => handleQuestionChange(questionIndex, 'question_type', e.target.value as 'single' | 'multiple')}
+                        className="mr-2"
+                      />
+                      Single Choice
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name={`question-type-${questionIndex}`}
+                        value="multiple"
+                        checked={question.question_type === 'multiple'}
+                        onChange={(e) => handleQuestionChange(questionIndex, 'question_type', e.target.value as 'single' | 'multiple')}
+                        className="mr-2"
+                      />
+                      Multiple Choice
+                    </label>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">Score *</label>
-                    <input
-                      type="number"
-                      value={question.score}
-                      onChange={(e) => handleQuestionChange(questionIndex, 'score', parseInt(e.target.value) || 0)}
-                      className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
-                      placeholder="Enter score"
-                      min="1"
-                      required
-                    />
+                </div>
+
+                {/* Correct Answers */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Correct Answer{question.question_type === 'multiple' ? 's' : ''} *
+                  </label>
+                  <div className="space-y-2">
+                    {question.options.map((option, optionIndex) => (
+                      <label key={optionIndex} className="flex items-center">
+                        <input
+                          type={question.question_type === 'multiple' ? 'checkbox' : 'radio'}
+                          name={`correct-answer-${questionIndex}`}
+                          value={option}
+                          checked={question.answer.includes(option)}
+                          onChange={(e) => {
+                            const newAnswers = question.question_type === 'multiple'
+                              ? e.target.checked
+                                ? [...question.answer, option]
+                                : question.answer.filter(a => a !== option)
+                              : [option];
+                            handleQuestionChange(questionIndex, 'answer', newAnswers);
+                          }}
+                          className="mr-2"
+                        />
+                        <span className="text-gray-700">{option}</span>
+                      </label>
+                    ))}
                   </div>
+                  {question.answer.length === 0 && (
+                    <p className="text-sm text-red-600 mt-1">Please select at least one correct answer</p>
+                  )}
+                </div>
+
+                {/* Score */}
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">Score *</label>
+                  <input
+                    type="number"
+                    value={question.score}
+                    onChange={(e) => handleQuestionChange(questionIndex, 'score', parseInt(e.target.value) || 0)}
+                    className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500 bg-white"
+                    placeholder="Enter score"
+                    min="1"
+                    required
+                  />
                 </div>
               </div>
             </div>

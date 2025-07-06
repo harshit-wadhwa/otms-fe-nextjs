@@ -49,12 +49,13 @@ model Test {
 }
 
 model TestQuestion {
-  id       Int      @id @default(autoincrement())
-  test_id  Int
-  question String
-  options  String[] // Array of options
-  answer   String   // Correct answer
-  score    Int      // Points for this question
+  id            Int      @id @default(autoincrement())
+  test_id       Int
+  question      String
+  options       String[] // Array of options
+  answer        String[] // Array of correct answers (supports multiple answers)
+  question_type String   @default("single") // "single" or "multiple"
+  score         Int      // Points for this question
 
   // Relations
   test Test @relation(fields: [test_id], references: [id], onDelete: Cascade)
@@ -68,7 +69,7 @@ model StudentTest {
   user_id   Int
   score     Int      @default(0)
   status    String   @default("pending") // pending, submitted, graded
-  answers   Json?    // Array of {question_id: number, answer: string}
+  answers   Json?    // Array of {question_id: number, answer: string[]} (supports multiple answers)
   created_at DateTime @default(now())
 
   // Relations

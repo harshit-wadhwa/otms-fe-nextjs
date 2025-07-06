@@ -18,10 +18,11 @@ export async function GET(
     description: test.description,
     time: test.time,
     total_score: test.score,
-    questions: questions.map((q: { id: number; question: string; options: string[]; score: number }) => ({
+    questions: questions.map((q: { id: number; question: string; options: string[]; question_type: string; score: number }) => ({
       id: q.id,
       question: q.question,
       options: q.options,
+      question_type: q.question_type,
       score: q.score,
     })),
   });

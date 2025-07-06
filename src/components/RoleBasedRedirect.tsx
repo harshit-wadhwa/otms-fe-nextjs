@@ -29,68 +29,77 @@ export default function RoleBasedRedirect({ children }: RoleBasedRedirectProps) 
       if (user?.role === 'student') {
         console.log('RoleBasedRedirect: Redirecting student to /student/dashboard');
         router.replace('/student/dashboard');
-      } else if (user?.role === 'teacher' || user?.role === 'admin') {
-        console.log('RoleBasedRedirect: Redirecting teacher/admin to /dashboard');
+      } else if (user?.role === 'admin') {
+        console.log('RoleBasedRedirect: Redirecting admin to /admin/dashboard');
+        router.replace('/admin/dashboard');
+      } else if (user?.role === 'teacher') {
+        console.log('RoleBasedRedirect: Redirecting teacher to /dashboard');
         router.replace('/dashboard');
       }
       return;
     }
 
     // Check if user is accessing the wrong dashboard
-    if (user?.role === 'student' && pathname.startsWith('/dashboard') && pathname !== '/student/dashboard') {
-      console.log('RoleBasedRedirect: Student accessing teacher dashboard, redirecting to /student/dashboard');
+    if (user?.role === 'student' && (pathname.startsWith('/dashboard') || pathname.startsWith('/admin')) && pathname !== '/student/dashboard') {
+      console.log('RoleBasedRedirect: Student accessing teacher/admin dashboard, redirecting to /student/dashboard');
       router.replace('/student/dashboard');
       return;
     }
 
-    if ((user?.role === 'teacher' || user?.role === 'admin') && pathname.startsWith('/student/dashboard')) {
-      console.log('RoleBasedRedirect: Teacher/admin accessing student dashboard, redirecting to /dashboard');
+    if (user?.role === 'teacher' && (pathname.startsWith('/admin') || pathname.startsWith('/student/dashboard'))) {
+      console.log('RoleBasedRedirect: Teacher accessing admin/student dashboard, redirecting to /dashboard');
       router.replace('/dashboard');
+      return;
+    }
+
+    if (user?.role === 'admin' && pathname.startsWith('/student/dashboard')) {
+      console.log('RoleBasedRedirect: Admin accessing student dashboard, redirecting to /admin/dashboard');
+      router.replace('/admin/dashboard');
       return;
     }
 
     // For other protected routes, ensure user has appropriate access
     // Students can access student-specific routes and shared routes
-    if (user?.role === 'student') {
-      const studentAllowedPaths = [
-        '/student/dashboard',
-        '/student/tests',
-        '/give-test',
-        '/scores',
-        '/login'
-      ];
+    // if (user?.role === 'student') {
+    //   const studentAllowedPaths = [
+    //     '/student/dashboard',
+    //     '/student/tests',
+    //     '/give-test',
+    //     '/scores',
+    //     '/login'
+    //   ];
       
-      const isAllowed = studentAllowedPaths.some(path => 
-        pathname.startsWith(path) || pathname === path
-      );
+    //   const isAllowed = studentAllowedPaths.some(path => 
+    //     pathname.startsWith(path) || pathname === path
+    //   );
       
-      if (!isAllowed) {
-        router.replace('/student/dashboard');
-        return;
-      }
-    }
+    //   if (!isAllowed) {
+    //     router.replace('/student/dashboard');
+    //     return;
+    //   }
+    // }
 
-    // Teachers/Admins can access teacher-specific routes and shared routes
-    if (user?.role === 'teacher' || user?.role === 'admin') {
-      const teacherAllowedPaths = [
-        '/dashboard',
-        '/add-test',
-        '/tests',
-        '/add-student',
-        '/assign-test',
-        '/scores',
-        '/login'
-      ];
+    // // Teachers/Admins can access teacher-specific routes and shared routes
+    // if (user?.role === 'teacher' || user?.role === 'admin') {
+    //   const teacherAllowedPaths = [
+    //     '/dashboard',
+    //     '/add-test',
+    //     '/tests',
+    //     '/add-student',
+    //     '/assign-test',
+    //     '/scores',
+    //     '/login'
+    //   ];
       
-      const isAllowed = teacherAllowedPaths.some(path => 
-        pathname.startsWith(path) || pathname === path
-      );
+    //   const isAllowed = teacherAllowedPaths.some(path => 
+    //     pathname.startsWith(path) || pathname === path
+    //   );
       
-      if (!isAllowed) {
-        router.replace('/dashboard');
-        return;
-      }
-    }
+    //   if (!isAllowed) {
+    //     router.replace('/dashboard');
+    //     return;
+    //   }
+    // }
   }, [isAuthenticated, isLoading, user, router, pathname]);
 
   // Show loading while checking authentication and redirecting

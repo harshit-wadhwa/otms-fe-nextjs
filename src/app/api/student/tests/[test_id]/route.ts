@@ -13,17 +13,39 @@ export async function POST(
   const test = await prisma.test.findFirst({ where: { id: Number(resolvedParams.test_id), is_active: true } });
   if (!test) return NextResponse.json({ detail: 'Test not found' }, { status: 404 });
   const questions = await prisma.testQuestion.findMany({ where: { test_id: test.id } });
-  // Format answers
-  const formattedAnswers = answers.map((a: { question_id: number; answer: string }) => ({ question_id: a.question_id, answer: a.answer }));
+  
+  // Format answers - handle both single and multiple answers
+  const formattedAnswers = answers.map((a: { question_id: number; answer: string | string[] }) => ({ 
+    question_id: a.question_id, 
+    answer: Array.isArray(a.answer) ? a.answer : [a.answer] 
+  }));
+  
   // Check if StudentTest already exists
   let studentTest = await prisma.studentTest.findFirst({ where: { test_id: test.id, user_id: userJwt.user_id } });
-  if (studentTest) {
-    // Calculate score
+  
+  // Calculate score function
+  const calculateScore = (answers: { question_id: number; answer: string[] }[]) => {
     let score = 0;
-    for (const answer of formattedAnswers) {
-      const question = questions.find((q: { id: number; answer: string; score: number }) => q.id === answer.question_id);
-      if (question && question.answer === answer.answer) score += question.score;
+    for (const answer of answers) {
+      const question = questions.find((q: { id: number; answer: string[]; score: number }) => q.id === answer.question_id);
+      if (question) {
+        // For multiple choice questions, check if all correct answers are selected and no incorrect ones
+        const correctAnswers = Array.isArray(question.answer) ? question.answer : [question.answer];
+        const studentAnswers = answer.answer;
+        
+        // Check if arrays have the same elements (order doesn't matter)
+        const isCorrect = correctAnswers.length === studentAnswers.length &&
+          correctAnswers.every(ans => studentAnswers.includes(ans)) &&
+          studentAnswers.every(ans => correctAnswers.includes(ans));
+        
+        if (isCorrect) score += question.score;
+      }
     }
+    return score;
+  };
+  
+  if (studentTest) {
+    const score = calculateScore(formattedAnswers);
     
     studentTest = await prisma.studentTest.update({
       where: { id: studentTest.id },
@@ -35,12 +57,8 @@ export async function POST(
     });
     return NextResponse.json({ message: 'Test submitted successfully', test_id: studentTest.id });
   } else {
-    // Calculate score
-    let score = 0;
-    for (const answer of formattedAnswers) {
-      const question = questions.find((q: { id: number; answer: string; score: number }) => q.id === answer.question_id);
-      if (question && question.answer === answer.answer) score += question.score;
-    }
+    const score = calculateScore(formattedAnswers);
+    
     const newStudentTest = await prisma.studentTest.create({
       data: {
         test_id: test.id,

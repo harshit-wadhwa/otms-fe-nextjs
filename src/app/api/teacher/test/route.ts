@@ -17,13 +17,14 @@ export async function POST(req: NextRequest) {
       is_active: true,
     },
   });
-  for (const q of questions as { question: string; options: string[]; answer: string; score: number }[]) {
+  for (const q of questions as { question: string; options: string[]; answer: string[]; question_type: string; score: number }[]) {
     await prisma.testQuestion.create({
       data: {
         test_id: test.id,
         question: q.question,
         options: q.options,
         answer: q.answer,
+        question_type: q.question_type || 'single',
         score: q.score,
       },
     });

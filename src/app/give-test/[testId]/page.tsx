@@ -10,6 +10,7 @@ interface Question {
   id: number;
   question: string;
   options: string[];
+  question_type: 'single' | 'multiple';
   score: number;
 }
 
@@ -30,7 +31,7 @@ export default function GiveTestPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<(string | null)[]>([]);
+  const [answers, setAnswers] = useState<(string | string[] | null)[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -116,7 +117,25 @@ export default function GiveTestPage() {
 
   // Handle answer selection
   const handleSelect = (option: string) => {
-    setAnswers(prev => prev.map((ans, idx) => idx === current ? option : ans));
+    const question = test?.questions[current];
+    if (!question) return;
+
+    if (question.question_type === 'multiple') {
+      // For multiple choice, toggle the option in the array
+      setAnswers(prev => prev.map((ans, idx) => {
+        if (idx === current) {
+          const currentAnswers = Array.isArray(ans) ? ans : [];
+          const newAnswers = currentAnswers.includes(option)
+            ? currentAnswers.filter(a => a !== option)
+            : [...currentAnswers, option];
+          return newAnswers;
+        }
+        return ans;
+      }));
+    } else {
+      // For single choice, replace the answer
+      setAnswers(prev => prev.map((ans, idx) => idx === current ? option : ans));
+    }
   };
 
   // Pagination
@@ -177,28 +196,34 @@ export default function GiveTestPage() {
             <div className="mb-6">
               <div className="text-lg font-semibold text-gray-900 mb-6 text-left">{question.question}</div>
               <div className="space-y-4">
-                {question.options.map((option, idx) => (
-                  <label
-                    key={idx}
-                    className={`block w-full p-4 border-2 rounded-xl cursor-pointer font-medium text-base transition-all
-                      ${answers[current] === option
-                        ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md'
-                        : 'bg-white border-gray-300 text-gray-800 hover:border-blue-400 hover:bg-blue-50'}
-                      focus-within:ring-2 focus-within:ring-blue-400
-                    `}
-                    tabIndex={0}
-                  >
-                    <input
-                      type="radio"
-                      name={`question-${current}`}
-                      value={option}
-                      checked={answers[current] === option}
-                      onChange={() => handleSelect(option)}
-                      className="mr-3 accent-blue-600 scale-125 align-middle focus:ring-2 focus:ring-blue-400"
-                    />
-                    <span className="align-middle select-none">{option}</span>
-                  </label>
-                ))}
+                {question.options.map((option, idx) => {
+                  const isSelected = question.question_type === 'multiple'
+                    ? Array.isArray(answers[current]) && answers[current]?.includes(option)
+                    : answers[current] === option;
+                  
+                  return (
+                    <label
+                      key={idx}
+                      className={`block w-full p-4 border-2 rounded-xl cursor-pointer font-medium text-base transition-all
+                        ${isSelected
+                          ? 'bg-blue-100 border-blue-500 text-blue-900 shadow-md'
+                          : 'bg-white border-gray-300 text-gray-800 hover:border-blue-400 hover:bg-blue-50'}
+                        focus-within:ring-2 focus-within:ring-blue-400
+                      `}
+                      tabIndex={0}
+                    >
+                      <input
+                        type={question.question_type === 'multiple' ? 'checkbox' : 'radio'}
+                        name={`question-${current}`}
+                        value={option}
+                        checked={isSelected}
+                        onChange={() => handleSelect(option)}
+                        className="mr-3 accent-blue-600 scale-125 align-middle focus:ring-2 focus:ring-blue-400"
+                      />
+                      <span className="align-middle select-none">{option}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -214,7 +239,7 @@ export default function GiveTestPage() {
                   className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base transition-all
                     ${current === idx
                       ? 'bg-blue-600 border-blue-700 text-white shadow-lg'
-                      : answers[idx]
+                      : answers[idx] && (Array.isArray(answers[idx]) ? answers[idx].length > 0 : true)
                         ? 'bg-green-100 border-green-400 text-green-800 hover:bg-green-200'
                         : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-blue-100 hover:border-blue-400'}
                   `}
@@ -238,7 +263,7 @@ export default function GiveTestPage() {
                 <button
                   type="button"
                   onClick={goNext}
-                  disabled={answers[current] == null}
+                  disabled={!answers[current] || (Array.isArray(answers[current]) && answers[current].length === 0)}
                   className="w-full sm:w-auto px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 font-semibold transition-colors shadow"
                 >
                   Next
@@ -247,7 +272,7 @@ export default function GiveTestPage() {
                 <button
                   type="button"
                   onClick={() => handleSubmit()}
-                  disabled={answers[current] == null || submitting}
+                  disabled={!answers[current] || (Array.isArray(answers[current]) && answers[current].length === 0) || submitting}
                   className="w-full sm:w-auto px-6 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 font-semibold transition-colors shadow cursor-pointer"
                 >
                   {submitting ? 'Submitting...' : 'Submit Test'}
